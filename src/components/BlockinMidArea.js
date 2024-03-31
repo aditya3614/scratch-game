@@ -76,7 +76,7 @@ function BlockinMidArea(props) {
           } else if (updatedBlock.func === "move backward") {
             updatedBlock.action = { x: -value, y: 0, rotate: 0 };
           } else if (updatedBlock.func === "move up") {
-            updatedBlock.action = { x: value, y: -value, rotate: 0 };
+            updatedBlock.action = { x: 0, y: -value, rotate: 0 };
           } else if (updatedBlock.func === "move downward") {
             updatedBlock.action = { x: 0, y: value, rotate: 0 };
           } else if (updatedBlock.func === "rotate") {

@@ -72,7 +72,7 @@ export default function PersonalizedMidArea(props) {
     <div
       ref={drop}
       draggable={false}
-      className="w-full h-full flex flex-col items-center border-r border-gray-200 text-600 text-2xl font-bold "
+      className="w-full h-full flex flex-col items-center rounded border-gray-200 text-600 text-2xl font-bold "
     >
       <div className="font-bold w-full text-2xl text-center mt-4 border-b-2 border-current">
         Mid Area

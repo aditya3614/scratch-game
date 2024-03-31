@@ -78,7 +78,7 @@ export default function Sidebar() {
       operation: "Move ",
       placeholder: 100,
       exactOperation: "steps upside",
-      action: { x: 0, y: -200, rotate: 0 },
+      action: { x: 0, y: -100, rotate: 0 },
       inputType: "number",
     },
     {
@@ -87,7 +87,7 @@ export default function Sidebar() {
       operation: "Move  ",
       placeholder: 100,
       exactOperation: "steps downside",
-      action: { x: 0, y: 200, rotate: 0 },
+      action: { x: 0, y: 100, rotate: 0 },
       inputType: "number",
     },
     {

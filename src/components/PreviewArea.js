@@ -31,8 +31,8 @@ export default function PreviewArea(props) {
         setLastActionIndex(i);
       }
     } else if (!isEqual(flow, prevFlow)) {
-      console.log("new flowww  " + JSON.stringify(flow));
-      console.log("old flowww " + JSON.stringify(prevFlow));
+      // console.log("new flowww  " + JSON.stringify(flow));
+      // console.log("old flowww " + JSON.stringify(prevFlow));
       const changedBlockIndex = flow.findIndex(
         (action, index) =>
           index <= lastActionIndex && !isEqual(action, prevFlow[index])
@@ -40,9 +40,9 @@ export default function PreviewArea(props) {
 
       if (changedBlockIndex !== -1) {
         const action = flow[changedBlockIndex];
-        console.log(
-          "action is performing att" + JSON.stringify(flow[changedBlockIndex])
-        );
+        // console.log(
+        //   "action is performing att" + JSON.stringify(flow[changedBlockIndex])
+        // );
         await performSingleAction(action);
         setLastActionIndex(changedBlockIndex);
       }
@@ -50,9 +50,9 @@ export default function PreviewArea(props) {
   };
 
   const performSingleAction = async (action) => {
-    console.log("single  actions called ");
+    // console.log("single  actions called ");
     if (action && action.action) {
-      console.log("andr aaya");
+      // console.log("andr aaya");
       const newPosition = await performMovementAction(
         action.action,
         position.x,
@@ -65,7 +65,7 @@ export default function PreviewArea(props) {
   };
 
   const performMovementAction = async (action, x, y, rotate) => {
-    console.log("movement perform called");
+    // console.log("movement perform called");
     if (action) {
       const { x: xOffset, y: yOffset, rotate: rotateOffset } = action;
       const newX = x + xOffset;
@@ -112,12 +112,66 @@ export default function PreviewArea(props) {
 
     getMessageAction();
   }, [flow]);
+  const replayActions = async () => {
+    // Reset position and rotation
+    setPosition({ x: 0, y: 0 });
+    setRotation(0);
+
+    // Animate each action in the flow
+    for (let i = flow.length - 1; i >= 0; i--) {
+      const action = flow[i];
+      console.log("latest   " + JSON.stringify(flow[i]));
+      await performReverseSingleAction(action);
+    }
+  };
+  const performReverseSingleAction = async (action) => {
+    if (action && action.action) {
+      const newPosition = await performReverseMovementAction(
+        action.action,
+        position.x,
+        position.y,
+        rotation
+      );
+      setPosition(newPosition);
+      setRotation(newPosition.rotate);
+    }
+  };
+  const performReverseMovementAction = async (action, x, y, rotate) => {
+    if (action) {
+      // Calculate the opposite movement
+      console.log("action to be perform");
+      const { x: xOffset, y: yOffset, rotate: rotateOffset } = action;
+      console.log(
+        "Xoffse " +
+          xOffset +
+          "   Yoffset " +
+          yOffset +
+          "     rotOff " +
+          rotateOffset
+      );
+      const newX = x - xOffset; // Opposite direction for x
+      const newY = y - yOffset; // Opposite direction for y
+      const newRotation = rotate - rotateOffset; // Opposite direction for rotation
+      console.log(
+        "newX " + newX + "   newY " + newY + "     newRrot " + newRotation
+      );
+      await animateImage(newX, newY, newRotation);
+      return { x: newX, y: newY, rotate: newRotation };
+    }
+    return { x, y, rotate };
+  };
 
   return (
     <div>
       <div className="font-bold text-2xl text-center mt-4 border-b-2 border-current">
         Preview Area
       </div>
+      <div className="flex justify-center">
+        <button className="border " onClick={replayActions}>
+          replay
+        </button>
+      </div>
+
       <div className="h-full  flex items-center justify-center relative ">
         <motion.img
           layout

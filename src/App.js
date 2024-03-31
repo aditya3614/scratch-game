@@ -16,12 +16,12 @@ function App() {
     <DndProvider backend={HTML5Backend}>
       <FlowProvider>
         <Context.Provider value={[keyVal, setKeyVal]}>
-          <div className="bg-blue-100 pt-6 font-sans">
+          <div className="bg-violet-100 pt-6 font-sans">
             <div className="h-screen overflow-hidden flex flex-row  antialiased ">
               <div className="h-screen  overflow-hidden flex flex-row bg-white border-t border-r border-gray-200 rounded-tr-xl mr-2">
                 <Sidebar />
               </div>
-              <div className=" h-screen w-3/5 overflow-hidden flex flex-row bg-white border-t border-r border-gray-200 rounded-tr-xl ml-2 mr-2">
+              <div className=" h-screen w-3/5 overflow-hidden flex flex-row bg-white border-t border-r border-gray-200 rounded-xl ml-2 mr-2">
                 <PersonalizedMidArea />
               </div>
 
