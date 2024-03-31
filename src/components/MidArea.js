@@ -4,15 +4,17 @@ import BlockinMidArea from "./BlockinMidArea";
 import { Reorder } from "framer-motion";
 import ControlBlocks from "./ControlBlocks";
 import Context from "./Context";
+import { useFlow } from "./flowContext";
 
 export default function PersonalizedMidArea(props) {
   const [selectedKey, setSelectedKey] = useContext(Context);
   const [boardItems, setBoardItems] = useState([]);
   const [itemCount, setItemCount] = useState({ count: 1 });
-
+  const { flow, setFlow } = useFlow();
   // Update the flow whenever the board items are changed
   useEffect(() => {
     let updatedFlow = [];
+    console.log("board itemmmm" + JSON.stringify(boardItems));
     for (let i = 0; i < boardItems.length; i++) {
       updatedFlow.push({
         onTap: boardItems[i].onTap,
@@ -22,8 +24,8 @@ export default function PersonalizedMidArea(props) {
         repeat: boardItems[i].repeat,
       });
     }
-    props.setFlow(updatedFlow);
-    console.log("floww  " + JSON.stringify(props.flow));
+    setFlow(updatedFlow);
+    console.log("floww  " + JSON.stringify(flow));
   }, [boardItems]);
 
   const [{ isOver, isOverCurrent }, drop] = useDrop(() => ({
@@ -50,6 +52,8 @@ export default function PersonalizedMidArea(props) {
       exactOperation: itemProps.exactOperation,
       placeholder: itemProps.placeholder,
       messageAction: itemProps.messageAction,
+      broadcastAction: itemProps.broadcastAction,
+      inputType: itemProps.inputType,
       action: itemProps.item.action,
       onTap: itemProps.item.onTap,
       type: itemProps.type,
@@ -68,9 +72,11 @@ export default function PersonalizedMidArea(props) {
     <div
       ref={drop}
       draggable={false}
-      className="w-full h-full flex flex-col items-center border-r border-gray-200 text-600 text-2xl font-bold p-5"
+      className="w-full h-full flex flex-col items-center border-r border-gray-200 text-600 text-2xl font-bold "
     >
-      {"MID AREA"}
+      <div className="font-bold w-full text-2xl text-center mt-4 border-b-2 border-current">
+        Mid Area
+      </div>
 
       <Reorder.Group
         axis={"y"}
@@ -96,10 +102,12 @@ export default function PersonalizedMidArea(props) {
                 draggable={true}
                 class={`items-center ${item.class}`}
                 operation={item.operation}
+                inputType={item.inputType}
                 placeholder={item.placeholder}
                 exactOperation={item.exactOperation}
                 action={item.action}
                 messageAction={item.messageAction}
+                broadcastAction={item.broadcastAction}
                 setInlist={setBoardItems}
               />
             )}

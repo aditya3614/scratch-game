@@ -4,37 +4,51 @@ import { Tag } from "antd";
 export default function Sidebar() {
   const eventsList = [
     {
-      func: "clickFlag",
+      func: "broadcast",
       class:
         "flex flex-row flex-wrap bg-yellow-500 text-white px-2 py-1 my-2 text-sm cursor-pointer",
-      operation: "When 🏁 Flag is Clicked",
-      onTap: "flag",
-    },
-    {
-      func: "clickSprite",
-      class:
-        "flex flex-row flex-wrap bg-yellow-500 text-white px-2 py-1 my-2 text-sm cursor-pointer",
-      operation: "When this 🫵 sprite clicked",
-      onTap: "sprite",
+      operation: "broadcast",
+      placeholder: "Hello!",
+      broadcastAction: { message: "hello", type: "say" },
+      inputType: "text",
     },
   ];
+  const looksStyle =
+    " flex flex-row flex-wrap bg-violet-500 text-white px-2 py-1 my-2 text-sm cursor-pointer";
   const lookList = [
     {
       func: "sayHello",
-      class:
-        "flex flex-row flex-wrap bg-green-500 text-white px-2 py-1 my-2 text-sm cursor-pointer",
+      class: looksStyle,
       operation: "say",
       placeholder: "Hello!",
-      messageAction: { message: "hello" },
+      messageAction: { message: "hello", type: "say" },
+      inputType: "text",
     },
     {
       func: "sayHelloWithTimer",
-      class:
-        "flex flex-row flex-wrap bg-green-500 text-white px-2 py-1 my-2 text-sm cursor-pointer",
+      class: looksStyle,
       operation: "say",
       operation2: "for",
       placeholder: "Hello!",
-      messageAction: { message: "hello", time: 2 },
+      messageAction: { message: "hello", time: 2, type: "say" },
+      inputType: "text",
+    },
+    {
+      func: "thinkHmm",
+      class: looksStyle,
+      operation: "think",
+      placeholder: "Hmmm...",
+      messageAction: { message: "Hmmm...", type: "think" },
+      inputType: "text",
+    },
+    {
+      func: "thinkHmmWithTimer",
+      class: looksStyle,
+      operation: "think",
+      operation2: "for",
+      placeholder: "Hmmm...",
+      messageAction: { message: "Hmmm...", time: 2, type: "think" },
+      inputType: "text",
     },
   ];
   const motionStyle =
@@ -47,6 +61,7 @@ export default function Sidebar() {
       placeholder: 100,
       exactOperation: "steps forward",
       action: { x: 100, y: 0, rotate: 0 },
+      inputType: "number",
     },
     {
       func: "move backward",
@@ -55,6 +70,7 @@ export default function Sidebar() {
       placeholder: 100,
       exactOperation: "steps backward",
       action: { x: -100, y: 0, rotate: 0 },
+      inputType: "number",
     },
     {
       func: "move up",
@@ -63,6 +79,7 @@ export default function Sidebar() {
       placeholder: 100,
       exactOperation: "steps upside",
       action: { x: 0, y: -200, rotate: 0 },
+      inputType: "number",
     },
     {
       func: "move downward",
@@ -71,6 +88,7 @@ export default function Sidebar() {
       placeholder: 100,
       exactOperation: "steps downside",
       action: { x: 0, y: 200, rotate: 0 },
+      inputType: "number",
     },
     {
       func: "rotate",
@@ -79,6 +97,7 @@ export default function Sidebar() {
       placeholder: "90",
       exactOperation: "degree",
       action: { x: 0, y: 0, rotate: -90 },
+      inputType: "number",
     },
   ];
   const controlList = [
@@ -94,84 +113,83 @@ export default function Sidebar() {
 
   return (
     <div
-      className="w-50 h-full  items-center flex flex-col  p-6 overflow-y-scroll border-r border-gray-200 text-600 text-2xl font-bold "
+      className="w-50 h-full  items-center flex flex-col  px-6 overflow-y-scroll border-r border-gray-200 text-600 text-xl font-bold "
       draggable={false}
     >
-      <div className="mb-4">{"Sidebar"}</div>
-
-      {/* <div className="font-bold ">{"Events"}</div>
-      {eventsList.map((item) => {
-        return (
-          <BlockItem
-            func={item.func}
-            item={item}
-            class={item.class}
-            operation={item.operation}
-            type={"insert"}
-          />
-        );
-      })} */}
-      <div className="font-bold">
-        {" "}
-        <Tag
-          color="#87d068"
-          className="w-36 text-xl flex items-center justify-center"
-        >
-          Looks
-        </Tag>{" "}
+      <div className="font-bold mb-4 text-2xl text-center mt-4 border-b-2 w-full border-current">
+        Sidebar
       </div>
-      {lookList.map((item) => {
-        return (
-          <BlockItem
-            inputType={"text"}
-            item={item}
-            func={item.func}
-            class={item.class}
-            operation={item.operation}
-            operation2={item.operation2}
-            placeholder={item.placeholder}
-            messageAction={item.messageAction}
-            exactOperation={item.exactOperation}
-            type={"insert"}
-          />
-        );
-      })}
 
-      <div className="font-bold">
-        {" "}
-        <Tag
-          color="#87d068"
-          className="w-36 text-xl flex items-center justify-center"
-        >
-          Motion
-        </Tag>{" "}
+      <div className="mb-4 pb-2 border-b-2">
+        <div className="font-bold"> Looks</div>
+        {lookList.map((item) => {
+          return (
+            <BlockItem
+              inputType={"text"}
+              item={item}
+              func={item.func}
+              class={item.class}
+              operation={item.operation}
+              operation2={item.operation2}
+              placeholder={item.placeholder}
+              messageAction={item.messageAction}
+              exactOperation={item.exactOperation}
+              type={"insert"}
+            />
+          );
+        })}
       </div>
-      {motionList.map((item) => {
-        return (
-          <BlockItem
-            inputType="number"
-            item={item}
-            func={item.func}
-            class={item.class}
-            operation={item.operation}
-            placeholder={item.placeholder}
-            exactOperation={item.exactOperation}
-            type={"insert"}
-          />
-        );
-      })}
-      <div className="font-bold"> {"Control"} </div>
-      {controlList.map((item) => {
-        return (
-          <BlockItem
-            item={item}
-            func={item.func}
-            class={item.class}
-            operation={item.operation}
-            type={"insertinto"}
-          />
-        );
-      })}
+      <div className="mb-4 pb-2 border-b-2">
+        <div className="font-bold">Motion</div>
+        {motionList.map((item) => {
+          return (
+            <BlockItem
+              inputType="number"
+              item={item}
+              func={item.func}
+              class={item.class}
+              operation={item.operation}
+              placeholder={item.placeholder}
+              exactOperation={item.exactOperation}
+              type={"insert"}
+            />
+          );
+        })}
+      </div>
+      <div className="mb-4 pb-2 border-b-2">
+        <div className="font-bold"> {"Control"} </div>
+        {controlList.map((item) => {
+          return (
+            <BlockItem
+              item={item}
+              func={item.func}
+              class={item.class}
+              operation={item.operation}
+              type={"insertinto"}
+            />
+          );
+        })}
+      </div>
+      <div className="mb-4 pb-2 border-b-2">
+        <div className="font-bold ">{"Events"}</div>
+        {eventsList.map((item) => {
+          return (
+            <BlockItem
+              inputType={"text"}
+              item={item}
+              func={item.func}
+              class={item.class}
+              operation={item.operation}
+              operation2={item.operation2}
+              placeholder={item.placeholder}
+              messageAction={item.messageAction}
+              broadcastAction={item.broadcastAction}
+              exactOperation={item.exactOperation}
+              type={"insert"}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

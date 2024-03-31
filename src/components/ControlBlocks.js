@@ -1,41 +1,31 @@
-import React from "react";
-import Blockcopy from "./BlockinMidArea";
+import React, { useState, useEffect, useContext } from "react";
+import BlockinMidArea from "./BlockinMidArea";
 import { useDrop } from "react-dnd";
-import { useState, useEffect, useContext } from "react";
 import { Reorder } from "framer-motion";
 import Context from "./Context";
-
+import { useFlow } from "./flowContext";
 function ControlBlock(props) {
-  const [keyVal, setKeyVal] = useContext(Context);
   const [innerBlock, setInnerBlock] = useState([]);
-
-  let count = 1;
-  // adding the component into the inner list of for loop and updating it into the board list
+  const [performActions, setPerformActions] = useState(false);
+  const [keyVal, setKeyVal] = useContext(Context);
+  const { flow, setFlow } = useFlow();
+  //useEffect to perform actions when performActions state changes
   useEffect(() => {
-    let inner = [];
-    for (let i = 0; i < innerBlock.length; i++) {
-      inner.push({
-        onTap: innerBlock[i].onTap,
-        action: innerBlock[i].action,
-        key: innerBlock[i].key,
-      });
+    if (performActions) {
+      const actions = innerBlock.map((item) => ({
+        action: item.action,
+        repeat: item.repeat,
+      }));
+      console.log("action value " + JSON.stringify(actions));
+      setFlow((prevFlow) => [...prevFlow, ...actions]);
+      props.setInlist((prevFlow) => [...prevFlow, actions]);
     }
+  }, [performActions, innerBlock]);
 
-    props.setInlist((prv) => {
-      const index = prv.findIndex((object) => {
-        return object.key === props.id;
-      });
-      // console.log("innerbox, board", index, prv)
-      prv[index].array = inner;
-      return [...prv];
-    });
-    // setInnerBlock(inner)
-    // console.log(innerBlocks, innerBlock)
-  }, [innerBlock]);
-
-  // drop function and updating the board
+  // Drop function to add dropped block to the innerBlock array
   const [{ isOver }, dropE] = useDrop(() => ({
     accept: ["insert", "replace", "replaceinto"],
+
     drop: (item) => addImageToBoard(item.props),
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -43,7 +33,7 @@ function ControlBlock(props) {
   }));
 
   const addImageToBoard = (ite) => {
-    // console.log(ite)
+    console.log("droped itme " + JSON.stringify(ite));
     const temp = {
       func: ite.func,
       class: ite.class,
@@ -53,33 +43,14 @@ function ControlBlock(props) {
       type: ite.type,
       array: ite.item.array,
     };
-    count += 1;
-    setInnerBlock((prv) => {
-      // console.log(temp)
-      return [...prv, { ...temp, key: props.id * 1000 + count }];
+    console.log("temp " + JSON.stringify(temp));
+    setInnerBlock((prevInnerBlock) => {
+      const newInnerBlock = [...prevInnerBlock, { ...temp }];
+      console.log("inner block" + JSON.stringify(newInnerBlock));
+      return newInnerBlock;
     });
   };
-  // handeling delete, element gets deleted when del is pressed
-  useEffect(() => {
-    const listener = (event) => {
-      if (event.code === "Delete") {
-        if (keyVal > 1000) {
-          setInnerBlock((prv) => {
-            let newArr = prv.filter((object) => {
-              return object.key !== keyVal;
-            });
-            return [...newArr];
-          });
-        }
-      }
-    };
-    document.addEventListener("keydown", listener);
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
-  }, [keyVal]);
 
-  // updating the values in board
   function handleChange(event) {
     const value = Number(event.target.value.replace(/\D/g, ""));
     // console.log(value)
@@ -94,7 +65,10 @@ function ControlBlock(props) {
       return [...prv];
     });
   }
-
+  // Stop actions function
+  const stopActions = () => {
+    setPerformActions(false);
+  };
   return (
     <div
       ref={dropE}
@@ -124,7 +98,11 @@ function ControlBlock(props) {
             drag
             className=" flex-row  content-center"
           >
-            <Blockcopy
+            {" "}
+            <button onClick={() => setPerformActions(true)}>
+              Start Actions
+            </button>
+            <BlockinMidArea
               id={item.key}
               class={` items-end ml-10 ${item.class}`}
               operation={item.operation}

@@ -24,11 +24,12 @@ function BlockItem(props) {
           type="number"
           className="w-1/4 rounded pl-2 mx-1"
         />
-      ) : props.func == "sayHelloWithTimer" ? (
+      ) : props.func == "sayHelloWithTimer" ||
+        props.func == "thinkHmmWithTimer" ? (
         <>
           <div className="flex">
             <div className="bg-white rounded text-gray-400 px-2 mx-2 text-center">
-              Hello!
+              {props.func == "sayHelloWithTimer" ? "Hello" : "Hmmm..."}
             </div>
             for
             <div className="bg-white rounded text-gray-400 px-2 mx-1">2</div>
