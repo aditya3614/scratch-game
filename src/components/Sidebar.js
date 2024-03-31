@@ -1,6 +1,6 @@
 import React from "react";
 import BlockItem from "./BlockItem";
-import { Tag } from "antd";
+
 export default function Sidebar() {
   const eventsList = [
     {
@@ -102,10 +102,10 @@ export default function Sidebar() {
   ];
   const controlList = [
     {
-      func: "for",
+      func: "forever",
       class:
-        "flex  flex-row flex-wrap bg-red-500 text-white px-7 py-3 my-2 text-sm cursor-pointer",
-      operation: "For Loop reps 🔁 ",
+        "flex w-full flex-row flex-wrap bg-red-500 text-white px-7 py-3 my-2 text-sm cursor-pointer",
+      operation: "forever",
       array: [],
       repeat: 5,
     },
@@ -156,7 +156,7 @@ export default function Sidebar() {
           );
         })}
       </div>
-      <div className="mb-4 pb-2 border-b-2">
+      <div className="mb-4 pb-2 border-b-2 w-full ">
         <div className="font-bold"> {"Control"} </div>
         {controlList.map((item) => {
           return (
@@ -170,7 +170,7 @@ export default function Sidebar() {
           );
         })}
       </div>
-      <div className="mb-4 pb-2 border-b-2">
+      <div className="mb-4 pb-2 border-b-2 ">
         <div className="font-bold ">{"Events"}</div>
         {eventsList.map((item) => {
           return (

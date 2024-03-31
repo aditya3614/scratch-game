@@ -3,6 +3,8 @@ import BlockinMidArea from "./BlockinMidArea";
 import { useDrop } from "react-dnd";
 import { Reorder } from "framer-motion";
 import Context from "./Context";
+import { message } from "antd";
+
 import { useFlow } from "./flowContext";
 function ControlBlock(props) {
   const [innerBlock, setInnerBlock] = useState([]);
@@ -17,7 +19,10 @@ function ControlBlock(props) {
         repeat: item.repeat,
       }));
       console.log("action value " + JSON.stringify(actions));
-      setFlow((prevFlow) => [...prevFlow, ...actions]);
+      const foreverAction = {
+        foreverAction: actions,
+      };
+      setFlow((prevFlow) => [...prevFlow, foreverAction]);
       props.setInlist((prevFlow) => [...prevFlow, actions]);
     }
   }, [performActions, innerBlock]);
@@ -33,6 +38,11 @@ function ControlBlock(props) {
   }));
 
   const addImageToBoard = (ite) => {
+    if (innerBlock.length >= 2) {
+      // Display warning message if already two blocks are present
+      message.info("Only two blocks are allowed to be dropped");
+      return; // Return early to prevent adding more blocks
+    }
     console.log("droped itme " + JSON.stringify(ite));
     const temp = {
       func: ite.func,
@@ -72,7 +82,7 @@ function ControlBlock(props) {
   return (
     <div
       ref={dropE}
-      className={`${props.class}  min-h-20 rounded-lg border-2 shadow-lg flex flex-col`}
+      className={`${props.class}  min-h-24 rounded-lg border-2 shadow-lg flex flex-col`}
       onClick={() => {
         {
           setKeyVal(props.id);
@@ -82,12 +92,6 @@ function ControlBlock(props) {
     >
       <div className="flex flex-row items-center ">
         <div className=" text-lg ">{props.operation}</div>
-        <input
-          onChange={handleChange}
-          placeholder="5"
-          type="text"
-          className="text-blue-900   ml-20  w-12 h-5  border-rounded rounded-xl"
-        ></input>
       </div>
 
       <Reorder.Group axis="y" values={innerBlock} onReorder={setInnerBlock}>

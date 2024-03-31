@@ -15,7 +15,7 @@ function BlockItem(props) {
   return (
     <div
       ref={makeItMovable}
-      className={`${props.class} h-14  shadow-lg rounded-lg border-2 -space-y-2 items-center `}
+      className={`${props.class} h-14 w-full shadow-lg rounded-lg border-2 -space-y-2 items-center `}
     >
       {props.operation}
       {props.inputType === "number" ? (
@@ -36,6 +36,8 @@ function BlockItem(props) {
           </div>
           {"seconds"}
         </>
+      ) : props.func == "forever" ? (
+        <div></div>
       ) : (
         <input
           placeholder={props.placeholder}

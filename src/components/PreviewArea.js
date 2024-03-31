@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { useFlow } from "./flowContext";
+
 export default function PreviewArea(props) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [lastActionIndex, setLastActionIndex] = useState(-1);
+  const [animationPaused, setAnimationPaused] = useState(false);
   const animation = useAnimation();
   const [prevFlow, setPrevFlow] = useState([]);
   const [hideText, setHideText] = useState(false);
@@ -17,8 +19,9 @@ export default function PreviewArea(props) {
 
   useEffect(() => {
     performActions();
-    console.log("flow brooo  " + JSON.stringify(flow));
+
     setPrevFlow(flow);
+    checkForeverAction(); // Check for forever action after flow updates
   }, [flow]);
 
   const performActions = async () => {
@@ -31,8 +34,6 @@ export default function PreviewArea(props) {
         setLastActionIndex(i);
       }
     } else if (!isEqual(flow, prevFlow)) {
-      // console.log("new flowww  " + JSON.stringify(flow));
-      // console.log("old flowww " + JSON.stringify(prevFlow));
       const changedBlockIndex = flow.findIndex(
         (action, index) =>
           index <= lastActionIndex && !isEqual(action, prevFlow[index])
@@ -40,9 +41,6 @@ export default function PreviewArea(props) {
 
       if (changedBlockIndex !== -1) {
         const action = flow[changedBlockIndex];
-        // console.log(
-        //   "action is performing att" + JSON.stringify(flow[changedBlockIndex])
-        // );
         await performSingleAction(action);
         setLastActionIndex(changedBlockIndex);
       }
@@ -50,9 +48,7 @@ export default function PreviewArea(props) {
   };
 
   const performSingleAction = async (action) => {
-    // console.log("single  actions called ");
     if (action && action.action) {
-      // console.log("andr aaya");
       const newPosition = await performMovementAction(
         action.action,
         position.x,
@@ -65,7 +61,6 @@ export default function PreviewArea(props) {
   };
 
   const performMovementAction = async (action, x, y, rotate) => {
-    // console.log("movement perform called");
     if (action) {
       const { x: xOffset, y: yOffset, rotate: rotateOffset } = action;
       const newX = x + xOffset;
@@ -78,7 +73,6 @@ export default function PreviewArea(props) {
   };
 
   const animateImage = async (x, y, rotate) => {
-    console.log("image gets animated");
     await animation.start({
       x: x,
       y: y,
@@ -112,18 +106,17 @@ export default function PreviewArea(props) {
 
     getMessageAction();
   }, [flow]);
+
   const replayActions = async () => {
-    // Reset position and rotation
     setPosition({ x: 0, y: 0 });
     setRotation(0);
 
-    // Animate each action in the flow
     for (let i = flow.length - 1; i >= 0; i--) {
       const action = flow[i];
-      console.log("latest   " + JSON.stringify(flow[i]));
       await performReverseSingleAction(action);
     }
   };
+
   const performReverseSingleAction = async (action) => {
     if (action && action.action) {
       const newPosition = await performReverseMovementAction(
@@ -136,34 +129,43 @@ export default function PreviewArea(props) {
       setRotation(newPosition.rotate);
     }
   };
+
   const performReverseMovementAction = async (action, x, y, rotate) => {
     if (action) {
-      // Calculate the opposite movement
-      console.log("action to be perform");
       const { x: xOffset, y: yOffset, rotate: rotateOffset } = action;
-      console.log(
-        "Xoffse " +
-          xOffset +
-          "   Yoffset " +
-          yOffset +
-          "     rotOff " +
-          rotateOffset
-      );
-      const newX = x - xOffset; // Opposite direction for x
-      const newY = y - yOffset; // Opposite direction for y
-      const newRotation = rotate - rotateOffset; // Opposite direction for rotation
-      console.log(
-        "newX " + newX + "   newY " + newY + "     newRrot " + newRotation
-      );
+      const newX = x - xOffset;
+      const newY = y - yOffset;
+      const newRotation = rotate - rotateOffset;
       await animateImage(newX, newY, newRotation);
       return { x: newX, y: newY, rotate: newRotation };
     }
     return { x, y, rotate };
   };
 
+  const checkForeverAction = () => {
+    const foreverAction = flow.find((item) => item.foreverAction);
+    if (foreverAction) {
+      const actions = foreverAction.foreverAction;
+      runForever(actions, 3);
+    }
+  };
+
+  const runForever = async (actions, iterations) => {
+    for (let i = 0; i < iterations; i++) {
+      for (const action of actions) {
+        if (!animationPaused) {
+          await performSingleAction(action);
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Add a delay between actions
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Pause animation
+        }
+      }
+    }
+  };
+
   return (
-    <div>
-      <div className="font-bold text-2xl text-center mt-4 border-b-2 border-current">
+    <div className="w-full">
+      <div className="font-bold text-2xl text-center mt-4 border-b-2 border-current ">
         Preview Area
       </div>
       <div className="flex justify-center">
@@ -187,12 +189,11 @@ export default function PreviewArea(props) {
         {latestMessage && !hideText && (
           <motion.div
             layout
-            // className={`${hideText ? "hidden" : ""}`}
-            animate={animation} // Use the same animation controls as the image
+            animate={animation}
             style={{
-              x: position.x, // Match the image's x position
-              y: position.y, // Match the image's y position
-              rotate: rotation, // Match the image's rotation
+              x: position.x,
+              y: position.y,
+              rotate: rotation,
             }}
           >
             {props.func}
