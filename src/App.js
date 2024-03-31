@@ -16,7 +16,7 @@ function App() {
     <DndProvider backend={HTML5Backend}>
       <FlowProvider>
         <Context.Provider value={[keyVal, setKeyVal]}>
-          <div className="bg-violet-100 pt-6 font-sans">
+          <div className="bg-green-400 pt-6 font-sans">
             <div className="h-screen overflow-hidden flex flex-row  antialiased ">
               <div className="h-screen  overflow-hidden flex flex-row bg-white border-t border-r border-gray-200 rounded-tr-xl mr-2">
                 <Sidebar />
