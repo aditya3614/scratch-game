@@ -3,60 +3,88 @@ import { motion, useAnimation } from "framer-motion";
 import { useFlow } from "./flowContext";
 
 export default function PreviewArea(props) {
+  const [ducks, setDucks] = useState([
+    { name: "Duck 1", x: 0, y: 0, rotation: 0 },
+  ]);
+  const [selectedDuckIndex, setSelectedDuckIndex] = useState(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [lastActionIndex, setLastActionIndex] = useState(-1);
   const [animationPaused, setAnimationPaused] = useState(false);
   const animation = useAnimation();
+  const [selectedDuck, setSelectedDuck] = useState("duck1");
   const [prevFlow, setPrevFlow] = useState([]);
   const [hideText, setHideText] = useState(false);
   const [latestMessage, setLatestMessage] = useState("");
   const [latestMessageType, setLatestMessageType] = useState("");
-  const { flow, setFlow } = useFlow();
+  const { flow, setFlow, singleAction, setSingleAction, singleMessageAction } =
+    useFlow();
+
   const isEqual = (obj1, obj2) => {
     return JSON.stringify(obj1) === JSON.stringify(obj2);
   };
 
+  function updatePosition(event, info) {
+    const newX = position.x + info.offset.x;
+    const newY = position.y + info.offset.y;
+    setPosition({ x: newX, y: newY });
+  }
+
+  //code to perform motion and looks
   useEffect(() => {
     performActions();
-
+    console.log("single actionnn " + JSON.stringify(singleAction));
     setPrevFlow(flow);
     checkForeverAction(); // Check for forever action after flow updates
-  }, [flow]);
+  }, [singleAction]);
 
-  const performActions = async () => {
-    const newLastActionIndex = flow.length - 1;
+  useEffect(() => {
+    console.log("single MESSAGE ACTION " + JSON.stringify(singleMessageAction));
+    getMessageAction();
+  }, [singleMessageAction]);
 
-    if (newLastActionIndex > lastActionIndex) {
-      for (let i = lastActionIndex + 1; i <= newLastActionIndex; i++) {
-        const action = flow[i];
-        await performSingleAction(action);
-        setLastActionIndex(i);
-      }
-    } else if (!isEqual(flow, prevFlow)) {
-      const changedBlockIndex = flow.findIndex(
-        (action, index) =>
-          index <= lastActionIndex && !isEqual(action, prevFlow[index])
-      );
+  const getMessageAction = () => {
+    const latestMessageAction = singleMessageAction;
 
-      if (changedBlockIndex !== -1) {
-        const action = flow[changedBlockIndex];
-        await performSingleAction(action);
-        setLastActionIndex(changedBlockIndex);
-      }
+    if (!latestMessageAction) {
+      setLatestMessage("");
+      return;
+    }
+    setHideText(false);
+    setLatestMessage(latestMessageAction.message);
+    setLatestMessageType(latestMessageAction.type);
+
+    if (latestMessageAction.time) {
+      setHideText(false);
+      setTimeout(() => {
+        setHideText(true);
+      }, latestMessageAction.time * 1000);
     }
   };
 
+  const performActions = async () => {
+    await performSingleAction(singleAction);
+  };
+
   const performSingleAction = async (action) => {
-    if (action && action.action) {
+    const duck = ducks[selectedDuckIndex];
+    if (action) {
       const newPosition = await performMovementAction(
-        action.action,
-        position.x,
-        position.y,
-        rotation
+        action,
+        duck.x,
+        duck.y,
+        duck.rotation
       );
-      setPosition(newPosition);
-      setRotation(newPosition.rotate);
+      const newDucks = [...ducks];
+      newDucks[selectedDuckIndex] = {
+        ...duck,
+        x: newPosition.x,
+        y: newPosition.y,
+        rotation: newPosition.rotate,
+      };
+      setDucks(newDucks);
+      // setPosition(newPosition);
+      // setRotation(newPosition.rotate);
     }
   };
 
@@ -81,46 +109,19 @@ export default function PreviewArea(props) {
     });
   };
 
-  useEffect(() => {
-    const getMessageAction = () => {
-      const latestMessageAction = flow
-        .slice()
-        .reverse()
-        .find((item) => item.messageAction);
-
-      if (!latestMessageAction) {
-        setLatestMessage("");
-        return;
-      }
-      setHideText(false);
-      setLatestMessage(latestMessageAction.messageAction.message);
-      setLatestMessageType(latestMessageAction.messageAction.type);
-
-      if (latestMessageAction.messageAction.time) {
-        setHideText(false);
-        setTimeout(() => {
-          setHideText(true);
-        }, latestMessageAction.messageAction.time * 1000);
-      }
-    };
-
-    getMessageAction();
-  }, [flow]);
+  //replay functionality
 
   const replayActions = async () => {
     setPosition({ x: 0, y: 0 });
     setRotation(0);
-
-    for (let i = flow.length - 1; i >= 0; i--) {
-      const action = flow[i];
-      await performReverseSingleAction(action);
-    }
+    console.log("single action here " + JSON.stringify(singleAction));
+    await performReverseSingleAction(singleAction);
   };
 
   const performReverseSingleAction = async (action) => {
-    if (action && action.action) {
+    if (action) {
       const newPosition = await performReverseMovementAction(
-        action.action,
+        action,
         position.x,
         position.y,
         rotation
@@ -142,6 +143,7 @@ export default function PreviewArea(props) {
     return { x, y, rotate };
   };
 
+  //forever control
   const checkForeverAction = () => {
     const foreverAction = flow.find((item) => item.foreverAction);
     if (foreverAction) {
@@ -162,50 +164,108 @@ export default function PreviewArea(props) {
       }
     }
   };
+  const handleDragEnd = (event, info, index) => {
+    const newDucks = [...ducks];
+    newDucks[index] = {
+      ...ducks[index],
+      x: ducks[index].x + info.offset.x,
+      y: ducks[index].y + info.offset.y,
+    };
+    setDucks(newDucks);
+    if (index === selectedDuckIndex) {
+      setPosition({
+        x: position.x + info.offset.x,
+        y: position.y + info.offset.y,
+      });
+    }
+  };
+  const handleDivDrag = (event, info) => {
+    setPosition({
+      x: position.x + info.offset.x,
+      y: position.y + info.offset.y,
+    });
+  };
+
+  const handleCreateDuck = () => {
+    const newDucks = [
+      ...ducks,
+      { name: `Duck ${ducks.length + 1}`, x: 0, y: 0, rotation: 0 },
+    ];
+    setDucks(newDucks);
+  };
 
   return (
-    <div className="w-full">
+    <div className="w-full" id="parent-id">
       <div className="font-bold text-2xl text-center mt-4 border-b-2 border-current ">
         Preview Area
       </div>
-      <div className="flex justify-center">
-        <button className="border " onClick={replayActions}>
-          replay
+      <div className="flex justify-around">
+        <button
+          className="border ml-4 rounded m-4 bg-teal-300 font-bold p-2"
+          onClick={replayActions}
+        >
+          Replay
         </button>
+        <button
+          className="border ml-4 rounded m-4 bg-amber-400 font-bold p-2 "
+          onClick={handleCreateDuck}
+        >
+          Create Duck <span className="text-xl  font-bold">⊕</span>
+        </button>
+        <select
+          className="border ml-4 rounded bg-violet-300 font-bold p-2 h-1/2 mt-6 "
+          value={selectedDuckIndex}
+          onChange={(e) => setSelectedDuckIndex(parseInt(e.target.value))}
+        >
+          {ducks.map((duck, index) => (
+            <option key={index} value={index}>
+              {duck.name}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="h-full  flex items-center justify-center relative ">
-        <motion.img
-          layout
-          className="w-1/6 "
-          animate={animation}
-          style={{
-            x: position.x,
-            y: position.y,
-            rotate: rotation,
-          }}
-          src="https://www.shutterstock.com/image-vector/rubber-duck-icon-600nw-71466952.jpg"
-        />
+      <div className="h-full flex items-center justify-center relative">
+        {ducks.map((duck, index) => (
+          <motion.img
+            key={index}
+            layout
+            className="w-1/6 relative"
+            animate={index === selectedDuckIndex ? animation : {}}
+            dragMomentum={false}
+            drag
+            id={`duck-${index}`}
+            onDragEnd={(event, info) => handleDragEnd(event, info, index)}
+            style={{
+              x: duck.x,
+              y: duck.y,
+              rotate: duck.rotation,
+            }}
+            src={`https://www.shutterstock.com/image-vector/duck-icon-600nw-71466952.jpg`}
+          />
+        ))}
         {latestMessage && !hideText && (
           <motion.div
             layout
             animate={animation}
+            className="ml-36"
+            onDragEnd={handleDivDrag}
             style={{
+              position: "absolute",
               x: position.x,
               y: position.y,
               rotate: rotation,
             }}
           >
-            {props.func}
             <div className="thinkbox mb-5 ">
               {latestMessageType === "say" ? (
-                <div class="flex flex-col w-full max-w-[320px] leading-1.5 px-2 transform rotate-[-25deg] border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-                  <p class="text-sm font-normal py-2.5 text-gray-900 dark:text-white">
+                <div className="flex flex-col w-full max-w-[320px] leading-1.5 px-2 transform rotate-[-25deg] border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                  <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">
                     {latestMessage}
                   </p>
                 </div>
               ) : (
-                <div className="flex mb-20 ">
+                <div className="flex mb-20 ml-20">
                   <div className="rotate-[-90deg]">
                     <div className="w-4 h-4 mb-4 border-b-2 border-r-2 border-gray-400 rounded-full animate-bounce"></div>
                     <div className="w-8 h-8 mb-4 border-b-2 border-2 border-gray-400 rounded-full animate-bounce"></div>

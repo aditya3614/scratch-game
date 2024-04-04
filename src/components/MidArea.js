@@ -10,11 +10,13 @@ export default function PersonalizedMidArea(props) {
   const [selectedKey, setSelectedKey] = useContext(Context);
   const [boardItems, setBoardItems] = useState([]);
   const [itemCount, setItemCount] = useState({ count: 1 });
-  const { flow, setFlow } = useFlow();
+  const { flow, setFlow, setSingleMessageAction, setSingleAction } = useFlow();
+
   // Update the flow whenever the board items are changed
+
   useEffect(() => {
     let updatedFlow = [];
-    console.log("board itemmmm" + JSON.stringify(boardItems));
+    // console.log("board itemmmm" + JSON.stringify(boardItems));
     for (let i = 0; i < boardItems.length; i++) {
       updatedFlow.push({
         onTap: boardItems[i].onTap,
@@ -24,9 +26,31 @@ export default function PersonalizedMidArea(props) {
         repeat: boardItems[i].repeat,
       });
     }
+    console.log(
+      "last board item " + JSON.stringify(boardItems[boardItems.length - 1])
+    );
+    const lastBoardItem = boardItems[boardItems.length - 1];
+    if (lastBoardItem && lastBoardItem.messageAction) {
+      setSingleMessageAction(lastBoardItem.messageAction);
+    }
+    if (lastBoardItem && lastBoardItem.action) {
+      const modifiedAction = modifyAction(lastBoardItem.action);
+      setSingleAction(modifiedAction);
+    }
+
     setFlow(updatedFlow);
-    console.log("floww  " + JSON.stringify(flow));
-  }, [boardItems]);
+  }, [boardItems.length]);
+
+  const modifyAction = (action) => {
+    const modifiedAction = { ...action };
+    Object.keys(modifiedAction).forEach((key) => {
+      if (modifiedAction[key] !== 0) {
+        modifiedAction[key] += 0.1;
+      }
+    });
+
+    return modifiedAction;
+  };
 
   const [{ isOver, isOverCurrent }, drop] = useDrop(() => ({
     accept: ["insert", "insertinto"],

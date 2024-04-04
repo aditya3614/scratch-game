@@ -2,14 +2,20 @@ import React, { useContext, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Context from "./Context";
 import { InputNumber, message } from "antd";
+import { useFlow } from "./flowContext";
 
 function BlockinMidArea(props) {
   const [keyVal, setKeyVal] = useContext(Context);
-  const [isValueChanged, setIsValueChanged] = useState(false);
   const [changedValue, setChangedValue] = useState(null);
   const [timeValue, setTimeValue] = useState(2);
   const [increment, setIncrement] = useState(1);
   const [broadcast, setBroadcast] = useState("Hello!");
+  const {
+    singleAction,
+    setSingleAction,
+    singleMessageAction,
+    setSingleMessageAction,
+  } = useFlow();
 
   // Function to handle changes and updates to the board
 
@@ -28,7 +34,7 @@ function BlockinMidArea(props) {
     } else {
       value = Number(event.target.value.replace(/\D/g, ""));
     }
-    console.log("event valueeee " + value);
+    // console.log("event valueeee " + value);
     setChangedValue(value);
   }
 
@@ -41,12 +47,12 @@ function BlockinMidArea(props) {
   }
 
   function handleBlockValueChange(value) {
-    console.log("valueee " + value);
+    // console.log("valueee " + value);
     if (!value && props.operation === "say") value = "Hello!";
     if (!value && props.operation === "think") value = "Hmmm...";
     if (!value && props.inputType === "number") value = 100 + increment;
     setIncrement((prev) => prev + 1);
-    console.log("incr " + increment);
+    // console.log("incr " + increment);
     props.setInlist((prev) => {
       const index = prev.findIndex((block) => block.key === props.id);
       if (index !== -1) {
@@ -83,6 +89,12 @@ function BlockinMidArea(props) {
             updatedBlock.action = { x: 0, y: 0, rotate: value };
           }
         }
+        if (updatedBlock.action) {
+          setSingleAction(updatedBlock.action);
+        }
+        if (updatedBlock.messageAction) {
+          setSingleMessageAction(updatedBlock.messageAction);
+        }
         const updatedFlow = [...prev];
         updatedFlow[index] = updatedBlock;
         return updatedFlow;
@@ -95,7 +107,7 @@ function BlockinMidArea(props) {
   return (
     <motion.div
       id="block"
-      className={`${props.class} h-11 items-center rounded-lg border-2 `}
+      className={`${props.class} h-11 items-center rounded-lg border-2 mt-8`}
       onClick={(event) => {
         setKeyVal(props.id);
 

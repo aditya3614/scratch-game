@@ -17,7 +17,7 @@ function App() {
         <Context.Provider value={[keyVal, setKeyVal]}>
           <div className="bg-amber-200 pt-6 font-sans">
             <div className="h-screen overflow-hidden flex flex-row  antialiased ">
-              <div className="h-screen  overflow-hidden flex flex-row bg-white border-t border-r border-gray-200 rounded-tr-xl mr-2">
+              <div className="h-screen w-2/5 overflow-hidden flex flex-row bg-white border-t border-r border-gray-200 rounded-tr-xl mr-2">
                 <Sidebar />
               </div>
               <div className=" h-screen w-2/5 overflow-hidden flex flex-row bg-white border-t border-r border-gray-200 rounded-xl ml-2 mr-2">

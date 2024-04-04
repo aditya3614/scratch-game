@@ -96,7 +96,7 @@ export default function Sidebar() {
       operation: "Turn ",
       placeholder: "90",
       exactOperation: "degree",
-      action: { x: 0, y: 0, rotate: -90 },
+      action: { x: 0, y: 0, rotate: 90 },
       inputType: "number",
     },
   ];
@@ -147,6 +147,7 @@ export default function Sidebar() {
               inputType="number"
               item={item}
               func={item.func}
+              action={item.action}
               class={item.class}
               operation={item.operation}
               placeholder={item.placeholder}
