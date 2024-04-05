@@ -32,7 +32,7 @@ function BlockItem(props) {
         }
       });
       setSingleAction(modifiedAction);
-      console.log("isme aaya prosps action " + props.action);
+
       return;
     }
 
@@ -44,7 +44,6 @@ function BlockItem(props) {
     let newAction;
     //motions
     if (props.func === "move forward") {
-      console.log("this condtion aise'");
       newAction = { x: value, y: 0, rotate: 0 };
     }
     if (props.func === "move backward") {
@@ -112,7 +111,6 @@ function BlockItem(props) {
     } else {
       value = Number(event.target.value.replace(/\D/g, ""));
     }
-    // console.log("event valueeee " + value);
     setChangedValue(value);
   }
 

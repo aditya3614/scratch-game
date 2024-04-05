@@ -68,12 +68,10 @@ export default function PreviewArea(props) {
   //code to perform motion and looks
   useEffect(() => {
     performActions();
-    console.log("single actionnn " + JSON.stringify(singleAction));
     setPrevFlow(flow);
   }, [singleAction]);
 
   useEffect(() => {
-    console.log("single MESSAGE ACTION " + JSON.stringify(singleMessageAction));
     getMessageAction();
   }, [singleMessageAction]);
 
@@ -148,7 +146,6 @@ export default function PreviewArea(props) {
   const replayActions = async () => {
     setPosition({ x: 0, y: 0 });
     setRotation(0);
-    console.log("single action here " + JSON.stringify(singleAction));
     await performReverseSingleAction(singleAction);
   };
 

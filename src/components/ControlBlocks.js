@@ -32,12 +32,10 @@ function ControlBlock(props) {
 
       return;
     }
-    console.log("item actionwa " + JSON.stringify(item.item.action));
     setLatestAction(item.item.action);
 
     if (item.item.func === "rotate") {
       // Check if the dropped block is a rotate function
-      console.log("item actionwa " + JSON.stringify(item.item.action));
       setLatestAction(item.item.action);
 
       const temp = {
@@ -87,9 +85,7 @@ function ControlBlock(props) {
   };
 
   const startAction = () => {
-    console.log("latest " + JSON.stringify(latestAction));
     setForeverAction(latestAction);
-    console.log("foverver actionn " + JSON.stringify(foreverAction));
     setPerformActions(true);
   };
 

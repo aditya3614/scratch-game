@@ -47,9 +47,7 @@ function BlockinMidArea(props) {
   }
 
   const handleBlockValueChange = (value) => {
-    console.log("valueeee " + value);
     if (!value && props.inputType === "number") {
-      console.log("isme aaya");
       const modifiedAction = { ...props.action };
       Object.keys(modifiedAction).forEach((key) => {
         if (modifiedAction[key] !== 0) {
@@ -57,12 +55,10 @@ function BlockinMidArea(props) {
         }
       });
       setSingleAction(modifiedAction);
-      console.log("isme aaya prosps action " + props.action);
       return;
     }
 
     if (!value && props.inputType === "text") {
-      console.log("isme aaya 2");
       setSingleMessageAction(props.messageAction);
       return;
     }
