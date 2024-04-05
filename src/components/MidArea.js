@@ -19,11 +19,8 @@ export default function PersonalizedMidArea(props) {
     // console.log("board itemmmm" + JSON.stringify(boardItems));
     for (let i = 0; i < boardItems.length; i++) {
       updatedFlow.push({
-        onTap: boardItems[i].onTap,
         action: boardItems[i].action,
         messageAction: boardItems[i].messageAction,
-        array: boardItems[i].array,
-        repeat: boardItems[i].repeat,
       });
     }
     console.log(

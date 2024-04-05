@@ -144,6 +144,9 @@ export default function PreviewArea(props) {
   };
 
   //forever control
+  useEffect(() => {
+    console.log("flow val " + JSON.stringify(flow));
+  }, [flow]);
   const checkForeverAction = () => {
     const foreverAction = flow.find((item) => item.foreverAction);
     if (foreverAction) {

@@ -47,7 +47,7 @@ function BlockinMidArea(props) {
   }
 
   function handleBlockValueChange(value) {
-    // console.log("valueee " + value);
+    console.log("valueee " + value);
     if (!value && props.operation === "say") value = "Hello!";
     if (!value && props.operation === "think") value = "Hmmm...";
     if (!value && props.inputType === "number") value = 100 + increment;
@@ -93,6 +93,7 @@ function BlockinMidArea(props) {
           setSingleAction(updatedBlock.action);
         }
         if (updatedBlock.messageAction) {
+          console.log("isme aaaya");
           setSingleMessageAction(updatedBlock.messageAction);
         }
         const updatedFlow = [...prev];

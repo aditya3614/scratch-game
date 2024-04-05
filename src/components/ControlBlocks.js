@@ -1,97 +1,104 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import BlockinMidArea from "./BlockinMidArea";
 import { useDrop } from "react-dnd";
 import { Reorder } from "framer-motion";
 import Context from "./Context";
 import { message } from "antd";
-
 import { useFlow } from "./flowContext";
+
 function ControlBlock(props) {
   const [innerBlock, setInnerBlock] = useState([]);
   const [performActions, setPerformActions] = useState(false);
+  const [droppedBlocks, setDroppedBlocks] = useState(0);
   const [keyVal, setKeyVal] = useContext(Context);
-  const { flow, setFlow } = useFlow();
-  //useEffect to perform actions when performActions state changes
-  useEffect(() => {
-    if (performActions) {
-      const actions = innerBlock.map((item) => ({
-        action: item.action,
-        repeat: item.repeat,
-      }));
-      console.log("action value " + JSON.stringify(actions));
-      const foreverAction = {
-        foreverAction: actions,
-      };
-      setFlow((prevFlow) => [...prevFlow, foreverAction]);
-      props.setInlist((prevFlow) => [...prevFlow, actions]);
-    }
-  }, [performActions, innerBlock]);
-
-  // Drop function to add dropped block to the innerBlock array
+  const [allowBlocks, setAllowBlocks] = useState(false);
+  const allowBlock = useRef(dropE);
+  const dontAllowBlocks = useRef(null);
+  const { flow, setFlow, foreverAction, setForeverAction } = useFlow();
+  let currentRef = allowBlock;
   const [{ isOver }, dropE] = useDrop(() => ({
     accept: ["insert", "replace", "replaceinto"],
-
     drop: (item) => addImageToBoard(item.props),
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   }));
 
-  const addImageToBoard = (ite) => {
+  const addImageToBoard = (item) => {
     if (innerBlock.length >= 2) {
-      // Display warning message if already two blocks are present
       message.info("Only two blocks are allowed to be dropped");
-      return; // Return early to prevent adding more blocks
+      setAllowBlocks(false);
+      currentRef = dontAllowBlocks;
+
+      return;
     }
-    console.log("droped itme " + JSON.stringify(ite));
+
     const temp = {
-      func: ite.func,
-      class: ite.class,
-      operation: ite.operation,
-      action: ite.item.action,
-      onTap: ite.onTap,
-      type: ite.type,
-      array: ite.item.array,
+      func: item.func,
+      class: item.class,
+      operation: item.operation,
+      action: item.item.action,
+      onTap: item.onTap,
+      type: item.type,
+      array: item.item.array,
     };
-    console.log("temp " + JSON.stringify(temp));
-    setInnerBlock((prevInnerBlock) => {
-      const newInnerBlock = [...prevInnerBlock, { ...temp }];
-      console.log("inner block" + JSON.stringify(newInnerBlock));
-      return newInnerBlock;
-    });
+
+    setInnerBlock((prevInnerBlock) => [...prevInnerBlock, { ...temp }]);
+    setDroppedBlocks(droppedBlocks + 1);
   };
+
+  useEffect(() => {
+    if (performActions) {
+      const actions = innerBlock.map((item) => ({
+        action: item.action,
+        repeat: item.repeat,
+      }));
+
+      const foreverAction = {
+        foreverAction: actions,
+      };
+
+      setFlow((prevFlow) => [...prevFlow, foreverAction]);
+      props.setInlist((prevFlow) => [...prevFlow, actions]);
+    }
+  }, [performActions, innerBlock]);
 
   function handleChange(event) {
     const value = Number(event.target.value.replace(/\D/g, ""));
-    // console.log(value)
-
     props.setBoardItem((prv) => {
-      const index = prv.findIndex((object) => {
-        return object.key === props.id;
-      });
+      const index = prv.findIndex((object) => object.key === props.id);
       prv[index].repeat = value;
-      // console.log(prv[index], props.id, index)
-      // console.log(prv[index].action)
       return [...prv];
     });
   }
-  // Stop actions function
+
   const stopActions = () => {
     setPerformActions(false);
   };
+
+  const handleDrop = () => {
+    if (droppedBlocks >= 2) {
+      message.info("Only two blocks are allowed to be dropped");
+      return;
+    }
+
+    setDroppedBlocks(droppedBlocks + 1);
+  };
+
+  const handleRemove = () => {
+    setDroppedBlocks(droppedBlocks - 1);
+  };
+
   return (
     <div
-      ref={dropE}
+      ref={currentRef}
       className={`${props.class}  min-h-24 rounded-lg border-2 shadow-lg flex flex-col`}
       onClick={() => {
-        {
-          setKeyVal(props.id);
-        }
-        // console.log(keyVal)
+        setKeyVal(props.id);
       }}
     >
       <div className="flex flex-row items-center ">
-        <div className=" text-lg ">{props.operation}</div>
+        <div className="text-lg">{props.operation}</div>
       </div>
 
       <Reorder.Group axis="y" values={innerBlock} onReorder={setInnerBlock}>
@@ -100,15 +107,16 @@ function ControlBlock(props) {
             key={item.key}
             value={item}
             drag
-            className=" flex-row  content-center"
+            className="flex-row content-center"
+            onDrop={handleDrop}
+            onRemove={handleRemove}
           >
-            {" "}
             <button onClick={() => setPerformActions(true)}>
               Start Actions
             </button>
             <BlockinMidArea
               id={item.key}
-              class={` items-end ml-10 ${item.class}`}
+              class={`items-end ml-10 ${item.class}`}
               operation={item.operation}
               setFlow={props.setFlow}
               type={"replaceinto"}
