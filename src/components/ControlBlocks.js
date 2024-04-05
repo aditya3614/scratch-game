@@ -12,10 +12,9 @@ function ControlBlock(props) {
   const [droppedBlocks, setDroppedBlocks] = useState(0);
   const [keyVal, setKeyVal] = useContext(Context);
   const [allowBlocks, setAllowBlocks] = useState(false);
-  const allowBlock = useRef(dropE);
-  const dontAllowBlocks = useRef(null);
+
   const { flow, setFlow, foreverAction, setForeverAction } = useFlow();
-  let currentRef = allowBlock;
+
   const [{ isOver }, dropE] = useDrop(() => ({
     accept: ["insert", "replace", "replaceinto"],
     drop: (item) => addImageToBoard(item.props),
@@ -28,7 +27,6 @@ function ControlBlock(props) {
     if (innerBlock.length >= 2) {
       message.info("Only two blocks are allowed to be dropped");
       setAllowBlocks(false);
-      currentRef = dontAllowBlocks;
 
       return;
     }
@@ -76,6 +74,11 @@ function ControlBlock(props) {
     setPerformActions(false);
   };
 
+  const startAction = () => {
+    setForeverAction(props.action);
+    setPerformActions(true);
+  };
+
   const handleDrop = () => {
     if (droppedBlocks >= 2) {
       message.info("Only two blocks are allowed to be dropped");
@@ -91,7 +94,7 @@ function ControlBlock(props) {
 
   return (
     <div
-      ref={currentRef}
+      ref={dropE}
       className={`${props.class}  min-h-24 rounded-lg border-2 shadow-lg flex flex-col`}
       onClick={() => {
         setKeyVal(props.id);
@@ -111,13 +114,12 @@ function ControlBlock(props) {
             onDrop={handleDrop}
             onRemove={handleRemove}
           >
-            <button onClick={() => setPerformActions(true)}>
-              Start Actions
-            </button>
+            <button onClick={startAction}>Start Actions</button>
             <BlockinMidArea
               id={item.key}
               class={`items-end ml-10 ${item.class}`}
               operation={item.operation}
+              exactOperation={item.ex}
               setFlow={props.setFlow}
               type={"replaceinto"}
               action={item.action}

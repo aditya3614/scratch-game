@@ -120,6 +120,7 @@ export default function PersonalizedMidArea(props) {
             {item.type === "insert" && (
               <BlockinMidArea
                 id={item.key}
+                func={item.func}
                 draggable={true}
                 class={`items-center ${item.class}`}
                 operation={item.operation}

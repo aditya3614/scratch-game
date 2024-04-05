@@ -46,64 +46,74 @@ function BlockinMidArea(props) {
     setTimeValue(value);
   }
 
-  function handleBlockValueChange(value) {
-    console.log("valueee " + value);
-    if (!value && props.operation === "say") value = "Hello!";
-    if (!value && props.operation === "think") value = "Hmmm...";
-    if (!value && props.inputType === "number") value = 100 + increment;
-    setIncrement((prev) => prev + 1);
-    // console.log("incr " + increment);
-    props.setInlist((prev) => {
-      const index = prev.findIndex((block) => block.key === props.id);
-      if (index !== -1) {
-        const updatedBlock = { ...prev[index] };
-        if (updatedBlock.func === "sayHelloWithTimer") {
-          updatedBlock.messageAction = {
-            message: value,
-            time: timeValue,
-            type: "say",
-          };
+  const handleBlockValueChange = (value) => {
+    console.log("valueeee " + value);
+    if (!value && props.inputType === "number") {
+      console.log("isme aaya");
+      const modifiedAction = { ...props.action };
+      Object.keys(modifiedAction).forEach((key) => {
+        if (modifiedAction[key] !== 0) {
+          modifiedAction[key] += 0.1;
         }
-        if (updatedBlock.func === "thinkHmm") {
-          updatedBlock.messageAction = { message: value, type: "think" };
-        }
-        if (updatedBlock.func === "thinkHmmWithTimer") {
-          updatedBlock.messageAction = {
-            message: value,
-            time: timeValue,
-            type: "think",
-          };
-        }
-        if (updatedBlock.func === "sayHello") {
-          updatedBlock.messageAction = { message: value, type: "say" };
-        } else {
-          if (updatedBlock.func === "move forward") {
-            updatedBlock.action = { x: value, y: 0, rotate: 0 };
-          } else if (updatedBlock.func === "move backward") {
-            updatedBlock.action = { x: -value, y: 0, rotate: 0 };
-          } else if (updatedBlock.func === "move up") {
-            updatedBlock.action = { x: 0, y: -value, rotate: 0 };
-          } else if (updatedBlock.func === "move downward") {
-            updatedBlock.action = { x: 0, y: value, rotate: 0 };
-          } else if (updatedBlock.func === "rotate") {
-            updatedBlock.action = { x: 0, y: 0, rotate: value };
-          }
-        }
-        if (updatedBlock.action) {
-          setSingleAction(updatedBlock.action);
-        }
-        if (updatedBlock.messageAction) {
-          console.log("isme aaaya");
-          setSingleMessageAction(updatedBlock.messageAction);
-        }
-        const updatedFlow = [...prev];
-        updatedFlow[index] = updatedBlock;
-        return updatedFlow;
-      }
+      });
+      setSingleAction(modifiedAction);
+      console.log("isme aaya prosps action " + props.action);
+      return;
+    }
 
-      return prev;
-    });
-  }
+    if (!value && props.inputType === "text") {
+      console.log("isme aaya 2");
+      setSingleMessageAction(props.messageAction);
+      return;
+    }
+
+    let newAction;
+    //motions
+    if (props.func === "move forward") {
+      console.log("isme aaya 2");
+      console.log("this condtion aise'");
+      newAction = { x: value, y: 0, rotate: 0 };
+    }
+    if (props.func === "move backward") {
+      newAction = { x: -value, y: 0, rotate: 0 };
+    }
+    if (props.func === "move up") {
+      newAction = { x: 0, y: -value, rotate: 0 };
+    }
+    if (props.func === "move downward") {
+      newAction = { x: 0, y: value, rotate: 0 };
+    }
+    if (props.func === "rotate") {
+      newAction = { x: 0, y: 0, rotate: value };
+    }
+    //looks
+    if (props.func === "sayHello") {
+      newAction = { message: value, type: "say" };
+    }
+    if (props.func === "sayHelloWithTimer") {
+      newAction = {
+        message: value,
+        time: timeValue,
+        type: "say",
+      };
+    }
+    if (props.func === "thinkHmm") {
+      newAction = { message: value, type: "think" };
+    }
+    if (props.func === "thinkHmmWithTimer") {
+      newAction = {
+        message: value,
+        time: timeValue,
+        type: "think",
+      };
+    }
+    if (props.inputType === "number") {
+      setSingleAction(newAction);
+    }
+    if (props.inputType === "text") {
+      setSingleMessageAction(newAction);
+    }
+  };
 
   return (
     <motion.div

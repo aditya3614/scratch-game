@@ -19,6 +19,8 @@ export const FlowProvider = ({ children }) => {
         setSingleAction,
         singleMessageAction,
         setSingleMessageAction,
+        foreverAction,
+        setForeverAction,
       }}
     >
       {children}
