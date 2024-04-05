@@ -11,7 +11,9 @@ function ControlBlock(props) {
   const [performActions, setPerformActions] = useState(false);
   const [droppedBlocks, setDroppedBlocks] = useState(0);
   const [keyVal, setKeyVal] = useContext(Context);
+  const [latestAction, setLatestAction] = useState();
   const [allowBlocks, setAllowBlocks] = useState(false);
+  const [off, setOff] = useState(false);
 
   const { flow, setFlow, foreverAction, setForeverAction } = useFlow();
 
@@ -30,19 +32,29 @@ function ControlBlock(props) {
 
       return;
     }
+    console.log("item actionwa " + JSON.stringify(item.item.action));
+    setLatestAction(item.item.action);
 
-    const temp = {
-      func: item.func,
-      class: item.class,
-      operation: item.operation,
-      action: item.item.action,
-      onTap: item.onTap,
-      type: item.type,
-      array: item.item.array,
-    };
+    if (item.item.func === "rotate") {
+      // Check if the dropped block is a rotate function
+      console.log("item actionwa " + JSON.stringify(item.item.action));
+      setLatestAction(item.item.action);
 
-    setInnerBlock((prevInnerBlock) => [...prevInnerBlock, { ...temp }]);
-    setDroppedBlocks(droppedBlocks + 1);
+      const temp = {
+        func: item.func,
+        class: item.class,
+        operation: item.operation,
+        action: item.item.action,
+        onTap: item.onTap,
+        type: item.type,
+        array: item.item.array,
+      };
+
+      setInnerBlock((prevInnerBlock) => [...prevInnerBlock, { ...temp }]);
+      setDroppedBlocks(droppedBlocks + 1);
+    } else {
+      message.info("Only rotate blocks are allowed to be dropped"); // Display message if not a rotate block
+    }
   };
 
   useEffect(() => {
@@ -75,7 +87,9 @@ function ControlBlock(props) {
   };
 
   const startAction = () => {
-    setForeverAction(props.action);
+    console.log("latest " + JSON.stringify(latestAction));
+    setForeverAction(latestAction);
+    console.log("foverver actionn " + JSON.stringify(foreverAction));
     setPerformActions(true);
   };
 
@@ -95,7 +109,7 @@ function ControlBlock(props) {
   return (
     <div
       ref={dropE}
-      className={`${props.class}  min-h-24 rounded-lg border-2 shadow-lg flex flex-col`}
+      className={`${props.class}  min-h-24 rounded-lg border-2 shadow-lg flex flex-col items-center justify-center`}
       onClick={() => {
         setKeyVal(props.id);
       }}
@@ -114,17 +128,26 @@ function ControlBlock(props) {
             onDrop={handleDrop}
             onRemove={handleRemove}
           >
-            <button onClick={startAction}>Start Actions</button>
-            <BlockinMidArea
-              id={item.key}
-              class={`items-end ml-10 ${item.class}`}
-              operation={item.operation}
-              exactOperation={item.ex}
-              setFlow={props.setFlow}
-              type={"replaceinto"}
-              action={item.action}
-              setInlist={setInnerBlock}
-            />
+            <div className="mr-8">
+              <BlockinMidArea
+                id={item.key}
+                class={`items-end ml-10 ${item.class}`}
+                operation={item.operation}
+                exactOperation={item.ex}
+                setFlow={props.setFlow}
+                func={item.func}
+                type={"replaceinto"}
+                setInlist={setInnerBlock}
+              />
+            </div>
+
+            <button
+              onClick={startAction}
+              className="bg-violet-500 p-2  mt-5 ml-5"
+              disabled={off}
+            >
+              Start Actions
+            </button>
           </Reorder.Item>
         ))}
       </Reorder.Group>

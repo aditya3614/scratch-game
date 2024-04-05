@@ -175,6 +175,8 @@ function BlockinMidArea(props) {
         >
           broadcast ▶️
         </button>
+      ) : props.func === "rotate" ? (
+        <></>
       ) : (
         <button
           className="bg-green-400 text-black flex justify-center item-center px-2 rounded"

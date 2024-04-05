@@ -12,30 +12,64 @@ export default function PreviewArea(props) {
   const [lastActionIndex, setLastActionIndex] = useState(-1);
   const [animationPaused, setAnimationPaused] = useState(false);
   const animation = useAnimation();
+  const [isRunning, setIsRunning] = useState(false);
+  const controls = useAnimation();
   const [selectedDuck, setSelectedDuck] = useState("duck1");
   const [prevFlow, setPrevFlow] = useState([]);
   const [hideText, setHideText] = useState(false);
   const [latestMessage, setLatestMessage] = useState("");
   const [latestMessageType, setLatestMessageType] = useState("");
-  const { flow, setFlow, singleAction, setSingleAction, singleMessageAction } =
-    useFlow();
+  const {
+    flow,
+    setFlow,
+    singleAction,
+    setSingleAction,
+    singleMessageAction,
+    foreverAction,
+    setForeverAction,
+  } = useFlow();
 
-  const isEqual = (obj1, obj2) => {
-    return JSON.stringify(obj1) === JSON.stringify(obj2);
+  //forever control
+
+  useEffect(() => {
+    if (foreverAction) {
+      startAnimation();
+    } else {
+      // stopAnimation();
+    }
+  }, [foreverAction]);
+
+  const startAnimation = async () => {
+    setIsRunning(true);
+
+    await animation.start({
+      rotate: 360, // Example animation, you can modify as needed
+      transition: { duration: 0.8, repeat: Infinity }, // Repeat animation infinitely
+    });
   };
 
-  function updatePosition(event, info) {
-    const newX = position.x + info.offset.x;
-    const newY = position.y + info.offset.y;
-    setPosition({ x: newX, y: newY });
-  }
+  const restartRotation = async () => {
+    await animation.stop(); // Stop the current animation
+    await animation.start({
+      rotate: 0, // Start rotation from 0 degrees
+      transition: { duration: 0 }, // No transition for instant restart
+    });
+    setIsRunning(true); // Set isRunning to true
+    await animation.start({
+      rotate: 360, // Start rotation again
+      transition: { duration: 0.8, repeat: Infinity },
+    });
+  };
 
+  const stopForeverAction = async () => {
+    setIsRunning(false);
+    await animation.stop(); // Stop animation
+  };
   //code to perform motion and looks
   useEffect(() => {
     performActions();
     console.log("single actionnn " + JSON.stringify(singleAction));
     setPrevFlow(flow);
-    checkForeverAction(); // Check for forever action after flow updates
   }, [singleAction]);
 
   useEffect(() => {
@@ -143,30 +177,6 @@ export default function PreviewArea(props) {
     return { x, y, rotate };
   };
 
-  //forever control
-  useEffect(() => {
-    console.log("flow val " + JSON.stringify(flow));
-  }, [flow]);
-  const checkForeverAction = () => {
-    const foreverAction = flow.find((item) => item.foreverAction);
-    if (foreverAction) {
-      const actions = foreverAction.foreverAction;
-      runForever(actions, 3);
-    }
-  };
-
-  const runForever = async (actions, iterations) => {
-    for (let i = 0; i < iterations; i++) {
-      for (const action of actions) {
-        if (!animationPaused) {
-          await performSingleAction(action);
-          await new Promise((resolve) => setTimeout(resolve, 100)); // Add a delay between actions
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 100)); // Pause animation
-        }
-      }
-    }
-  };
   const handleDragEnd = (event, info, index) => {
     const newDucks = [...ducks];
     newDucks[index] = {
@@ -209,6 +219,23 @@ export default function PreviewArea(props) {
         >
           Replay
         </button>
+        {foreverAction && ( // Conditionally render the stop button if foreverAction is active
+          <div>
+            <button
+              className="border ml-4 rounded m-4 bg-red-400 font-bold p-2"
+              onClick={restartRotation}
+            >
+              restart
+            </button>
+            <button
+              className="border ml-4 rounded m-4 bg-red-400 font-bold p-2"
+              onClick={stopForeverAction}
+            >
+              Stop
+            </button>
+          </div>
+        )}
+
         <button
           className="border ml-4 rounded m-4 bg-amber-400 font-bold p-2 "
           onClick={handleCreateDuck}

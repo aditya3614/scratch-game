@@ -2,17 +2,26 @@ import React from "react";
 import { useState } from "react";
 import { useDrag } from "react-dnd";
 import { useFlow } from "./flowContext";
-
+import { message } from "antd";
 function BlockItem(props) {
   const [changedValue, setChangedValue] = useState(null);
   const [timeValue, setTimeValue] = useState(2);
   const [incr, setIncr] = useState(0.1);
+  const [broadcast, setBroadcast] = useState("Hello!");
   const {
     singleAction,
     setSingleAction,
     singleMessageAction,
     setSingleMessageAction,
   } = useFlow();
+
+  function handleBroadcast(event) {
+    let value = event.target.value;
+    setBroadcast(value);
+  }
+  function broadcastMessage(value) {
+    message.info(value);
+  }
 
   const handleBlockValueChange = (value) => {
     if (!value && props.inputType === "number") {
@@ -71,7 +80,12 @@ function BlockItem(props) {
         type: "think",
       };
     }
-    setSingleAction(newAction);
+    if (props.inputType === "number") {
+      setSingleAction(newAction);
+    }
+    if (props.inputType === "text") {
+      setSingleMessageAction(newAction);
+    }
   };
 
   const [{ isBeingDragged }, makeItDraggable] = useDrag(() => ({
@@ -107,46 +121,70 @@ function BlockItem(props) {
   return (
     <div
       ref={makeItMovable}
-      className={`${props.class} h-16 w-full shadow-lg rounded-lg border-2 -space-y-2 items-center `}
+      className={`${props.class} h-16 w-full flex  shadow-lg rounded-lg border-2 -space-y-2 items-center `}
     >
-      {props.operation}
-      {props.inputType === "number" ? (
-        <input
-          onChange={handleChange}
-          placeholder={props.placeholder}
-          type="number"
-          className="w-1/4 rounded pl-2 mx-1 text-black"
-        />
-      ) : props.func == "sayHelloWithTimer" ||
-        props.func == "thinkHmmWithTimer" ? (
-        <>
-          <div className="flex">
-            <div className="bg-white rounded text-gray-400 px-2 mx-2 text-center">
-              {props.func == "sayHelloWithTimer" ? "Hello" : "Hmmm..."}
-            </div>
+      <div className="mr-2">{props.operation}</div>
+
+      <span>
+        {props.action && (
+          <input
+            onChange={handleChange}
+            className="shadow-lg text-blue-900 mr-6 w-16 h-5 rounded pl-5"
+            type="number"
+            placeholder={props.placeholder}
+          />
+        )}
+        {props.broadcastAction && (
+          <input
+            onChange={handleBroadcast}
+            placeholder={props.placeholder}
+            className="shadow-lg text-blue-900  h-5 rounded mr-2 pl-5"
+            type="text"
+          ></input>
+        )}
+        {props.messageAction && (
+          <input
+            onChange={handleChange}
+            className="shadow-lg text-blue-900  w-16 h-5 rounded text-center"
+            type="text"
+            placeholder={props.placeholder}
+          />
+        )}
+        {props.messageAction && props.messageAction.time && (
+          <>
             for
-            <div className="bg-white rounded text-gray-400 px-2 mx-1">2</div>
-          </div>
-          {"seconds"}
-        </>
-      ) : props.func == "forever" ? (
-        <div></div>
+            <input
+              onChange={handleChangeForTime}
+              className="shadow-lg text-blue-900  w-16 h-5 rounded  pl-5"
+              type="number"
+              placeholder={props.messageAction.time}
+            />{" "}
+            seconds
+          </>
+        )}
+      </span>
+      <div className="mr-2 items-center">{props.exactOperation}</div>
+      {props.broadcastAction ? (
+        <button
+          className="bg-green-400 text-black flex justify-center item-center px-2 rounded"
+          onClick={() => {
+            broadcastMessage(broadcast);
+          }}
+        >
+          broadcast ▶️
+        </button>
+      ) : props.operation === "turn forever" ? (
+        <></>
       ) : (
-        <input
-          placeholder={props.placeholder}
-          type="text"
-          className="w-1/2 rounded ml-4 text-center"
-        />
+        <button
+          className="bg-green-400 text-black flex justify-center item-center px-2 rounded ml-2"
+          onClick={() => {
+            handleBlockValueChange(changedValue);
+          }}
+        >
+          run ▶️
+        </button>
       )}
-      {props.exactOperation}
-      <button
-        className="bg-green-400 text-black flex justify-center item-center px-4 rounded ml-2"
-        onClick={() => {
-          handleBlockValueChange(changedValue);
-        }}
-      >
-        run ▶️
-      </button>
     </div>
   );
 }

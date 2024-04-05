@@ -105,7 +105,7 @@ export default function Sidebar() {
       func: "forever",
       class:
         "flex w-full flex-row flex-wrap bg-red-500 text-white px-7 py-3 my-2 text-sm cursor-pointer",
-      operation: "forever",
+      operation: "turn forever",
       array: [],
       repeat: 5,
     },

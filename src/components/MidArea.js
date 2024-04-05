@@ -114,6 +114,7 @@ export default function PersonalizedMidArea(props) {
                 draggable={true}
                 class={`items-start py-5 ${item.class}`}
                 operation={item.operation}
+                action={item.action}
                 setInlist={setBoardItems}
               />
             )}
